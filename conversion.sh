@@ -12,33 +12,77 @@
 
 
 # Descr. :  convert byte to MB
-# Input  :  name of the file to evaluate
-#           ( ex:  "image.img" )
-# Outupt :  echo of the file size in MB
+# Input  :  number of byte to convert
+#           ( ex:  "10000000" )
+# Outupt :  echo of size in MB
 # Return :  none
-# Usage  :  size=$(byte2MB image.img)
+# Usage  :  size=$(byte2MB 10000000)
 function byte2MB () {
 	local size=0
-	if [[ ! -e $1 ]]; then
-		size=0
+	if [[ $# -eq 1 ]]; then
+		size=$1
+		let 'size = size / (1000 * 1000)'
 	else
-		size=$(wc -c < ${1})
-		let 'size = size / (1024 * 1024)'
+		size=0
 	fi
 	echo $size
 }
 
 
-function MB2MiB () {
+# Descr. :  convert byte to MiB
+# Input  :  number of byte to convert
+#           ( ex:  "1048576" )
+# Outupt :  echo of size in MiB
+# Return :  none
+# Usage  :  size=$(byte2MiB 1048576)
+function byte2MiB () {
 	local size=0
-	if [[ ! -e $1 ]]; then
-		size=0
+	if [[ $# -eq 1 ]]; then
+		size=$1
+		let 'size = size / (1024 * 1024)'
 	else
+		size=0
+	fi
+	echo $size
+}
+
+
+
+# Descr. :  convert MiB to MB
+# Input  :  number of MiB to convert
+#           ( ex:  "1048576" )
+# Outupt :  echo of size in MB
+# Return :  none
+# Usage  :  size=$(MiB2MB 52)
+function MiB2MB () {
+	local size=0
+	if [[ $# -eq 1 ]]; then
 		size=$1
 		let 'size = (size * 1024 * 1024) / (1000 * 1000)'
+	else
+		size=0
 	fi
 	echo $size
 }
+
+
+# Descr. :  convert MB to MiB
+# Input  :  number of MB to convert
+#           ( ex:  "54" )
+# Outupt :  echo of size in MiB
+# Return :  none
+# Usage  :  size=$(MB2MiB 52)
+function MB2MiB () {
+	local size=0
+	if [[ $# -eq 1 ]]; then
+		size=$1
+		let 'size = (size * 1000 * 1000) / (1024 * 1024)'
+	else
+		size=0
+	fi
+	echo $size
+}
+
 
 
 # Descr. :  Compare two file size
@@ -50,17 +94,23 @@ function MB2MiB () {
 function compere_size () {
 	local power1=0
 	local power2=0
-	local val1=$(echo $1 | sed 's/[KiB-MiB-GiB]//g')
-	local val2=$(echo $2 | sed 's/[KiB-MiB-GiB]//g')
+	local val1=$(echo $1 | sed 's/[KiB-MiB-GiB-KB-MB-GB]//g')
+	local val2=$(echo $2 | sed 's/[KiB-MiB-GiB-KB-MB-GB]//g')
 
 	case `echo $1 | sed 's/[0-9]//g'` in
-		KiB|K) power1=1000 ;;
+		KB) power1=1000 ;;
+		MB) let 'power1 = 1000 * 1000' ;;
+		GB) let 'power1 = 1000 * 1000 * 1000' ;;
+		KiB|K) power1=1024 ;;
 		MiB|M) let 'power1 = 1024 * 1024' ;;
 		GiB|G) let 'power1 = 1024 * 1024 * 1024' ;;
 		 *) power1=1
 	esac
 	case `echo $2 | sed 's/[0-9]//g'` in
-		KiB|K) power2=1000 ;;
+		KB) power2=1000 ;;
+		MB) let 'power2 = 1000 * 1000' ;;
+		GB) let 'power2 = 1000 * 1000 * 1000' ;;
+		KiB|K) power2=1024 ;;
 		MiB|M) let 'power2 = 1024 * 1024' ;;
 		GiB|G) let 'power2 = 1024 * 1024 * 1024' ;;
 		 *) power2=1

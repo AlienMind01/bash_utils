@@ -17,10 +17,13 @@
 # Return :  1 if it is root user, 0 otherwise
 # Usage  :  check_isRoot
 function check_isRoot () {
-	local isRoot=$(id -u)
-	if [[ $isRoot != 0 ]]; then
-		echo_w "This script must be run as root"
-	fi
+	local isRoot=0
+	local user=$(whoami)
+	if [[ "$user" == "root" ]]; then
+		isRoot=1
+	else
+		isRoot=0
+		fi
 	return $isRoot
 }
 
@@ -63,7 +66,8 @@ function check_free_space () {
 		return 0
 	fi
 
-	available_space=$(df . -B M | grep -vE '^Filesystem|tmpfs|cdrom' | awk '{ print $5 " " $1 }')
+	available_space=$(df . -B MiB | grep -vE '^Filesystem|tmpfs|cdrom' | awk '{ print $4 }')
+	available_space="${available_space%M*}"
 	echo_d "Available free space: ${available_space} MiB"
 
 	if [[ ${available_space} -le ${min_space} ]]; then
@@ -84,7 +88,7 @@ function check_free_space () {
 # Output :  none
 # Return :  number of the check result (zero if success)
 # Usage  :  check_connection localhost
-function check_connection () {
+function check_connection_server () {
 	local hostname=$1
 	local user_name=$2
 	local user_passwd=$3
@@ -95,10 +99,8 @@ function check_connection () {
 	fi
 
 	if [[ ! -z $user_name ]] && [[ ! -z $user_passwd ]]; then
-		echo wget --no-check-certificate --spider --timeout=5 --tries=3 --user ${user_name} --password ${user_passwd} ${hostname}
 		wget --no-check-certificate --spider --timeout=5 --tries=3 --user ${user_name} --password ${user_passwd} ${hostname} >/dev/null 2>/dev/null
 	else
-		echo wget --no-check-certificate --spider --timeout=5 --tries=3 ${hostname}
 		wget --no-check-certificate --spider --timeout=5 --tries=3 ${hostname} >/dev/null 2>/dev/null
 	fi
 	check=$?

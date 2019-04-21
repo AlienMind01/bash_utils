@@ -50,6 +50,7 @@ function create_new_log () {
 	echo "#########################################################" >> ${folder}/${name}
 
 	echo ${name}
+	return 0
 }
 
 
