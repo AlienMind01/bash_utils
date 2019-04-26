@@ -87,7 +87,7 @@ function check_free_space () {
 #           Optional inputs are the user and password account for authentication
 # Output :  none
 # Return :  number of the check result (zero if success)
-# Usage  :  check_connection localhost
+# Usage  :  check_connection_server localhost
 function check_connection_server () {
 	local hostname=$1
 	local user_name=$2
